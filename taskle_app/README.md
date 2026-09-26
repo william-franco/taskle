@@ -1,8 +1,30 @@
-# Taskle
+# Taskle App
 
 Lorem ipsum.
 
-## Examples of commits
+## Coverage
+
+flutter pub run build_runner build --delete-conflicting-outputs
+
+flutter test --coverage
+
+genhtml coverage/lcov.info -o coverage/html
+
+open coverage/html/index.html
+
+## ScreenShots
+
+Placeholder paths — add PNG files under `assets/screenshots/` when available.
+
+| Image 1 | Image 2 | Image 3 |
+|----------|----------|----------|
+| ![App Screenshot](assets/screenshots/screen-1.png) | ![App Screenshot](assets/screenshots/screen-2.png) | ![App Screenshot](assets/screenshots/screen-3.png) |
+
+| Image 4 | Image 5 | Image 6 |
+|----------|----------|----------|
+| ![App Screenshot](assets/screenshots/screen-4.png) | ![App Screenshot](assets/screenshots/screen-5.png) | ![App Screenshot](assets/screenshots/screen-6.png) |
+
+## Commits
 
 ```
 git add . && git commit -m ":rocket: Initial commit." && git push

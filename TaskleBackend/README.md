@@ -1,6 +1,34 @@
-# Taskle
+# Dev Feed Backend
 
 Lorem ipsum.
+
+## Migrations
+
+```
+dotnet tool install --global dotnet-ef --version 10.*
+or
+dotnet tool update --global dotnet-ef --version 10.*
+dotnet ef database update
+```
+
+A migration `InitialCreate` já está versionada em `Migrations/`. Em um clone novo, use normalmente `dotnet ef database update` (ou apenas `dotnet run`, que aplica migrations na subida).
+
+Só execute `dotnet ef migrations add <Nome>` após alterar entidades ou o `DbContext`.
+
+## Run Project
+
+```
+dotnet build
+dotnet run
+```
+
+## Accessing
+
+API: http://localhost:5209
+
+OpenAPI (docs): http://localhost:5209/openapi/v1.json
+
+Scalar UI: http://localhost:5209/scalar
 
 ## Examples of commits
 
@@ -17,9 +45,6 @@ git add . && git commit -m ":memo: Adjusted project imports." && git push
 git add . && git commit -m ":arrow_up: Updated dependencies." && git push
 git add . && git commit -m ":arrow_down: Removed dependencies." && git push
 git add . && git commit -m ":wastebasket: Removed unused code." && git push
-git add . && git commit -m ":test_tube: Added test functionality xyz." && git push
-git add . && git commit -m ":construction_worker: Building in progress." && git push
-git add . && git commit -m ":construction_worker: Added CI build system." && git push
 ```
 
 ## License
