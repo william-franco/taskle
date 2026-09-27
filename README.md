@@ -15,14 +15,14 @@ Lista de tarefas full-stack: cadastro, login e CRUD de tarefas privadas por usu�
 ```
 taskle/
 ├── TaskleBackend/     → [README do backend](TaskleBackend/README.md)
-└── taskle_app/        → [README do app](taskle_app/README.md)
+└── taskle-app/        → [README do app](taskle-app/README.md)
 ```
 
 Documentação complementar:
 
 | Documento | Conteúdo |
 |-----------|----------|
-| [`taskle_app/README.md`](taskle_app/README.md) | Arquitetura Flutter, testes, coverage, screenshots |
+| [`taskle-app/README.md`](taskle-app/README.md) | Arquitetura Flutter, testes, coverage, screenshots |
 | [`TaskleBackend/README.md`](TaskleBackend/README.md) | Pacotes, migrations, execução e URLs da API |
 
 ## Pré-requisitos
@@ -46,18 +46,18 @@ Para migrations, pacotes e Scalar, consulte [`TaskleBackend/README.md`](TaskleBa
 ### 2. App Flutter
 
 ```bash
-cd taskle_app
+cd taskle-app
 flutter pub get
 flutter run
 ```
 
 > O backend deve estar em execução antes de autenticar ou gerenciar tarefas.
 
-Para arquitetura, testes e coverage, consulte [`taskle_app/README.md`](taskle_app/README.md).
+Para arquitetura, testes e coverage, consulte [`taskle-app/README.md`](taskle-app/README.md).
 
 ## Integração app ↔ API
 
-Base URL em `taskle_app/lib/src/common/constants/api_constant.dart`:
+Base URL em `taskle-app/lib/src/common/constants/api_constant.dart`:
 
 | Plataforma | URL |
 |------------|-----|
