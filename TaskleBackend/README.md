@@ -1,6 +1,18 @@
-# Dev Feed Backend
+# Taskle Backend
 
-Lorem ipsum.
+Backend para o projeto Taskle: autenticação JWT com refresh token e CRUD de tarefas privadas por usuário.
+
+## Libraries
+
+```
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version 10.0.0
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 10.0.0
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 10.0.0
+dotnet add package Microsoft.IdentityModel.Tokens --version 8.7.0
+dotnet add package System.IdentityModel.Tokens.Jwt --version 8.7.0
+dotnet add package BCrypt.Net-Next --version 4.0.3
+dotnet add package Scalar.AspNetCore --version 2.*
+```
 
 ## Migrations
 
@@ -24,11 +36,7 @@ dotnet run
 
 ## Accessing
 
-API: http://localhost:5209
-
-OpenAPI (docs): http://localhost:5209/openapi/v1.json
-
-Scalar UI: http://localhost:5209/scalar
+API: http://localhost:5062/api/v1 · OpenAPI: http://localhost:5062/openapi/v1.json · Scalar: http://localhost:5062/scalar
 
 ## Examples of commits
 
