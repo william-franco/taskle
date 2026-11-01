@@ -33,6 +33,10 @@ void main() {
   setUp(() {
     mockRepository = MockTaskRepository();
     viewModel = TaskViewModelImpl(taskRepository: mockRepository);
+    when(mockRepository.findLocalTasks()).thenAnswer(
+      (_) async => SuccessResult(value: <TaskModel>[]),
+    );
+    when(mockRepository.isOnline).thenReturn(true);
   });
 
   tearDown(() => viewModel.dispose());

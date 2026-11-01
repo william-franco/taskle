@@ -6,6 +6,10 @@ import 'package:taskle_app/src/features/tasks/models/task_model.dart';
 import 'package:taskle_app/src/features/tasks/models/task_screen_state.dart';
 import 'package:taskle_app/src/features/tasks/routes/task_routes.dart';
 import 'package:taskle_app/src/features/tasks/view_models/task_view_model.dart';
+import 'package:taskle_app/src/features/tasks/widgets/status_banner.dart';
+import 'package:taskle_app/src/features/tasks/widgets/task_card.dart';
+import 'package:taskle_app/src/features/tasks/widgets/task_empty_state.dart';
+import 'package:taskle_app/src/features/tasks/widgets/task_error_state.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,6 +26,7 @@ class _TaskViewState extends State<TaskView> {
   @override
   void initState() {
     super.initState();
+    widget.taskViewModel.startConnectionSync();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await widget.taskViewModel.getAllTasks();
     });
@@ -49,59 +54,53 @@ class _TaskViewState extends State<TaskView> {
         child: StateBuilderWidget<TaskViewModel, TaskScreenState>(
           viewModel: widget.taskViewModel,
           builder: (context, screenState) {
-            return switch (screenState.tasks) {
+            final content = switch (screenState.tasks) {
               InitialState() || LoadingState() => const Center(
                 child: CircularProgressIndicator(),
               ),
-              ErrorState(:final error) => _buildError(error),
+              ErrorState(:final error) => TaskErrorState(
+                message: error.message,
+                onRetry: () => widget.taskViewModel.getAllTasks(),
+              ),
               SuccessState(:final data) => _buildSuccessState(data),
             };
+            final hasPending =
+                screenState.tasks
+                    is SuccessState<List<TaskModel>, TaskException> &&
+                (screenState.tasks
+                        as SuccessState<List<TaskModel>, TaskException>)
+                    .data
+                    .any((t) => t.isPendingSync);
+            return Column(
+              children: [
+                if (screenState.isOffline)
+                  StatusBanner(
+                    icon: Icons.cloud_off_outlined,
+                    message: hasPending
+                        ? 'Modo offline. Alterações serão sincronizadas ao reconectar.'
+                        : 'Modo offline. Exibindo dados salvos no dispositivo.',
+                  )
+                else if (hasPending)
+                  const StatusBanner(
+                    icon: Icons.sync_outlined,
+                    message: 'Há alterações pendentes de sincronização.',
+                  ),
+                Expanded(child: content),
+              ],
+            );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push(TaskRoutes.taskForm, extra: widget.taskViewModel),
+        onPressed: () =>
+            context.push(TaskRoutes.taskForm, extra: widget.taskViewModel),
         child: const Icon(Icons.add_outlined),
       ),
     );
   }
 
-  Widget _buildError(TaskException error) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Text(error.message, textAlign: TextAlign.center),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => widget.taskViewModel.getAllTasks(),
-                child: const Text('Tentar novamente'),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildSuccessState(List<TaskModel> tasks) {
-    if (tasks.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 120),
-          Center(
-            child: Text(
-              'Nenhuma tarefa.\nToque em + para criar.',
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      );
-    }
+    if (tasks.isEmpty) return const TaskEmptyState();
 
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -110,7 +109,7 @@ class _TaskViewState extends State<TaskView> {
       separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final task = tasks[index];
-        return _TaskCard(
+        return TaskCard(
           task: task,
           onTap: () => context.push(
             TaskRoutes.taskDetail(task.id),
@@ -128,45 +127,6 @@ class _TaskViewState extends State<TaskView> {
           ),
         );
       },
-    );
-  }
-}
-
-class _TaskCard extends StatelessWidget {
-  final TaskModel task;
-  final VoidCallback onTap;
-  final VoidCallback onEdit;
-  final ValueChanged<bool> onToggle;
-
-  const _TaskCard({
-    required this.task,
-    required this.onTap,
-    required this.onEdit,
-    required this.onToggle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Checkbox(value: task.isCompleted, onChanged: (v) => onToggle(v ?? false)),
-        title: Text(
-          task.title,
-          style: task.isCompleted
-              ? const TextStyle(decoration: TextDecoration.lineThrough)
-              : null,
-        ),
-        subtitle: Text(
-          task.content,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        onTap: onTap,
-        trailing: IconButton(
-          icon: const Icon(Icons.edit_outlined),
-          onPressed: onEdit,
-        ),
-      ),
     );
   }
 }

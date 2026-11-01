@@ -1,3 +1,4 @@
+import 'package:taskle_app/src/common/validators/validators.dart';
 import 'package:taskle_app/src/common/patterns/state_pattern.dart';
 import 'package:taskle_app/src/common/state_management/state_management.dart';
 import 'package:taskle_app/src/features/auth/exceptions/auth_exception.dart';
@@ -43,7 +44,6 @@ class _RegisterViewState extends State<RegisterView> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_outlined),
           onPressed: () {
-            // widget.authViewModel.resetRegisterState();
             context.pop();
           },
         ),
@@ -116,15 +116,7 @@ class _RegisterViewState extends State<RegisterView> {
               prefixIcon: Icon(Icons.person_outline),
               hintText: 'Digite seu nome completo',
             ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Por favor, insira seu nome';
-              }
-              if (value.trim().length < 3) {
-                return 'O nome deve ter pelo menos 3 caracteres';
-              }
-              return null;
-            },
+            validator: Validators.name,
             enabled: !isLoading,
           ),
           const SizedBox(height: 16),
@@ -137,15 +129,7 @@ class _RegisterViewState extends State<RegisterView> {
               hintText: 'Digite seu email',
             ),
             keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Por favor, insira seu email';
-              }
-              if (!value.contains('@') || !value.contains('.')) {
-                return 'Por favor, insira um email válido';
-              }
-              return null;
-            },
+            validator: Validators.email,
             enabled: !isLoading,
           ),
           const SizedBox(height: 16),
@@ -168,15 +152,7 @@ class _RegisterViewState extends State<RegisterView> {
               ),
             ),
             obscureText: _obscurePassword,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor, insira sua senha';
-              }
-              if (value.length < 6) {
-                return 'A senha deve ter pelo menos 6 caracteres';
-              }
-              return null;
-            },
+            validator: Validators.password,
             enabled: !isLoading,
           ),
           const SizedBox(height: 16),
@@ -201,15 +177,8 @@ class _RegisterViewState extends State<RegisterView> {
               ),
             ),
             obscureText: _obscureConfirmPassword,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor, confirme sua senha';
-              }
-              if (value != _passwordController.text) {
-                return 'As senhas não coincidem';
-              }
-              return null;
-            },
+            validator: (value) =>
+                Validators.confirmPassword(value, _passwordController.text),
             enabled: !isLoading,
           ),
           const SizedBox(height: 24),

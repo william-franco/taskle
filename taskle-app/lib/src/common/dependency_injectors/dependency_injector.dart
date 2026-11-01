@@ -5,6 +5,7 @@ import 'package:taskle_app/src/features/auth/repositories/auth_repository.dart';
 import 'package:taskle_app/src/features/auth/view_models/auth_session_view_model.dart';
 import 'package:taskle_app/src/features/auth/view_models/login_view_model.dart';
 import 'package:taskle_app/src/features/auth/view_models/register_view_model.dart';
+import 'package:taskle_app/src/features/tasks/data_sources/task_local_data_source.dart';
 import 'package:taskle_app/src/features/tasks/repositories/task_repository.dart';
 import 'package:taskle_app/src/features/tasks/view_models/task_view_model.dart';
 import 'package:taskle_app/src/features/settings/repositories/setting_repository.dart';
@@ -36,6 +37,7 @@ void _registerAuth() {
       connectionService: locator<ConnectionService>(),
       httpService: locator<HttpService>(),
       storageService: locator<StorageService>(),
+      taskLocalDataSource: locator<TaskLocalDataSource>(),
     ),
   );
   locator.registerLazySingleton<LoginViewModel>(
@@ -50,10 +52,14 @@ void _registerAuth() {
 }
 
 void _registerTasks() {
+  locator.registerLazySingleton<TaskLocalDataSource>(
+    () => TaskLocalDataSourceImpl(),
+  );
   locator.registerLazySingleton<TaskRepository>(
     () => TaskRepositoryImpl(
       connectionService: locator<ConnectionService>(),
       httpService: locator<HttpService>(),
+      localDataSource: locator<TaskLocalDataSource>(),
     ),
   );
   locator.registerLazySingleton<TaskViewModel>(
@@ -72,6 +78,7 @@ void _registerSettings() {
 
 Future<void> initDependencies() async {
   await locator<StorageService>().initStorage();
+  await locator<TaskLocalDataSource>().init();
   await Future.wait([
     locator<SettingViewModel>().getTheme(),
   ]);

@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
+
 import 'dart:io' show Platform;
 
 class ApiConstant {
   static String get baseUrl {
     if (kIsWeb) return 'http://localhost:5062/api/v1';
-    if (Platform.isAndroid) return 'http://10.0.2.2:5062/api/v1';
+    // if (Platform.isAndroid) return 'http://10.0.2.2:5062/api/v1';
+    if (Platform.isAndroid) return 'http://127.0.0.1:5062/api/v1';
     return 'http://localhost:5062/api/v1';
   }
 

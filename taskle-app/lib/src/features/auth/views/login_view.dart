@@ -1,3 +1,4 @@
+import 'package:taskle_app/src/common/validators/validators.dart';
 import 'package:taskle_app/src/common/patterns/state_pattern.dart';
 import 'package:taskle_app/src/common/state_management/state_management.dart';
 import 'package:taskle_app/src/features/auth/exceptions/auth_exception.dart';
@@ -112,15 +113,7 @@ class _LoginViewState extends State<LoginView> {
               hintText: 'Digite seu email',
             ),
             keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Por favor, insira seu email';
-              }
-              if (!value.contains('@') || !value.contains('.')) {
-                return 'Por favor, insira um email válido';
-              }
-              return null;
-            },
+            validator: Validators.email,
             enabled: !isLoading,
           ),
           const SizedBox(height: 16),
@@ -143,15 +136,7 @@ class _LoginViewState extends State<LoginView> {
               ),
             ),
             obscureText: _obscurePassword,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor, insira sua senha';
-              }
-              if (value.length < 6) {
-                return 'A senha deve ter pelo menos 6 caracteres';
-              }
-              return null;
-            },
+            validator: Validators.password,
             enabled: !isLoading,
           ),
           const SizedBox(height: 8),
@@ -161,7 +146,6 @@ class _LoginViewState extends State<LoginView> {
               onPressed: isLoading
                   ? null
                   : () {
-                      // TODO: Implementar recuperação de senha
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Funcionalidade em desenvolvimento'),

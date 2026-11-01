@@ -2,6 +2,7 @@ import 'package:taskle_app/src/common/constants/api_constant.dart';
 import 'package:taskle_app/src/common/patterns/result_pattern.dart';
 import 'package:taskle_app/src/common/services/connection_service.dart';
 import 'package:taskle_app/src/common/services/http_service.dart';
+import 'package:taskle_app/src/features/tasks/data_sources/task_local_data_source.dart';
 import 'package:taskle_app/src/features/tasks/exceptions/task_exception.dart';
 import 'package:taskle_app/src/features/tasks/models/deleted_task_model.dart';
 import 'package:taskle_app/src/features/tasks/models/task_model.dart';
@@ -11,6 +12,12 @@ typedef TaskResult = ResultPattern<TaskModel, TaskException>;
 typedef DeleteTaskResult = ResultPattern<DeletedTaskModel, TaskException>;
 
 abstract interface class TaskRepository {
+  bool get isOnline;
+
+  Stream<bool> get onConnectionChanged;
+
+  Future<TasksResult> findLocalTasks();
+
   Future<TasksResult> findAllTasks();
   Future<TaskResult> createTask({
     required String title,
@@ -23,38 +30,43 @@ abstract interface class TaskRepository {
     required bool isCompleted,
   });
   Future<DeleteTaskResult> deleteTask(int id);
+
+  Future<bool> syncTasks();
 }
 
 class TaskRepositoryImpl implements TaskRepository {
   final ConnectionService connectionService;
   final HttpService httpService;
+  final TaskLocalDataSource localDataSource;
+
+  bool _isSyncing = false;
 
   TaskRepositoryImpl({
     required this.connectionService,
     required this.httpService,
+    required this.localDataSource,
   });
+
+  @override
+  bool get isOnline => connectionService.isConnected;
+
+  @override
+  Stream<bool> get onConnectionChanged => connectionService.onConnectionChanged;
+
+  @override
+  Future<TasksResult> findLocalTasks() async {
+    try {
+      return SuccessResult(value: await localDataSource.getTasks());
+    } catch (error) {
+      return ErrorResult(error: TaskException('Erro inesperado: $error'));
+    }
+  }
 
   @override
   Future<TasksResult> findAllTasks() async {
     try {
-      await connectionService.checkConnection();
-
-      if (!connectionService.isConnected) {
-        return ErrorResult(error: TaskException('Dispositivo sem conexão.'));
-      }
-
-      final result = await httpService.getData(path: ApiConstant.tasks);
-
-      if (result.statusCode == 200 && result.data != null) {
-        final tasks = (result.data as List)
-            .map((e) => TaskModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        return SuccessResult(value: tasks);
-      }
-
-      return ErrorResult(
-        error: TaskException('Falha ao carregar tarefas: ${result.statusCode}'),
-      );
+      await syncTasks();
+      return SuccessResult(value: await localDataSource.getTasks());
     } catch (error) {
       return ErrorResult(error: TaskException('Erro inesperado: $error'));
     }
@@ -66,26 +78,14 @@ class TaskRepositoryImpl implements TaskRepository {
     required String content,
   }) async {
     try {
-      await connectionService.checkConnection();
-
-      if (!connectionService.isConnected) {
-        return ErrorResult(error: TaskException('Dispositivo sem conexão.'));
-      }
-
-      final result = await httpService.postData(
-        path: ApiConstant.tasks,
-        body: {'title': title, 'content': content},
+      final created = await localDataSource.insert(
+        title: title,
+        content: content,
+        now: DateTime.now().toUtc(),
       );
-
-      if ((result.statusCode == 201 || result.statusCode == 200) &&
-          result.data != null) {
-        return SuccessResult(
-          value: TaskModel.fromJson(result.data as Map<String, dynamic>),
-        );
-      }
-
-      return ErrorResult(
-        error: TaskException('Falha ao criar tarefa: ${result.statusCode}'),
+      await syncTasks(pull: false);
+      return SuccessResult(
+        value: await localDataSource.getById(created.id) ?? created,
       );
     } catch (error) {
       return ErrorResult(error: TaskException('Erro inesperado: $error'));
@@ -100,30 +100,18 @@ class TaskRepositoryImpl implements TaskRepository {
     required bool isCompleted,
   }) async {
     try {
-      await connectionService.checkConnection();
-
-      if (!connectionService.isConnected) {
-        return ErrorResult(error: TaskException('Dispositivo sem conexão.'));
-      }
-
-      final result = await httpService.putData(
-        path: '${ApiConstant.tasks}/$id',
-        body: {
-          'title': title,
-          'content': content,
-          'isCompleted': isCompleted,
-        },
+      final updated = await localDataSource.update(
+        id: id,
+        title: title,
+        content: content,
+        isCompleted: isCompleted,
+        now: DateTime.now().toUtc(),
       );
-
-      if (result.statusCode == 200 && result.data != null) {
-        return SuccessResult(
-          value: TaskModel.fromJson(result.data as Map<String, dynamic>),
-        );
+      if (updated == null) {
+        return ErrorResult(error: TaskException('Tarefa não encontrada.'));
       }
-
-      return ErrorResult(
-        error: TaskException('Falha ao atualizar tarefa: ${result.statusCode}'),
-      );
+      await syncTasks(pull: false);
+      return SuccessResult(value: await localDataSource.getById(id) ?? updated);
     } catch (error) {
       return ErrorResult(error: TaskException('Erro inesperado: $error'));
     }
@@ -132,29 +120,131 @@ class TaskRepositoryImpl implements TaskRepository {
   @override
   Future<DeleteTaskResult> deleteTask(int id) async {
     try {
-      await connectionService.checkConnection();
-
-      if (!connectionService.isConnected) {
-        return ErrorResult(error: TaskException('Dispositivo sem conexão.'));
+      final deleted = await localDataSource.delete(id);
+      if (deleted == null) {
+        return ErrorResult(error: TaskException('Tarefa não encontrada.'));
       }
-
-      final result = await httpService.deleteData(path: '${ApiConstant.tasks}/$id');
-
-      if (result.statusCode == 200 && result.data != null) {
-        final data = result.data as Map<String, dynamic>;
-        return SuccessResult(
-          value: DeletedTaskModel(
-            title: data['title'] as String? ?? 'Task excluida',
-            description: data['description'] as String? ?? '',
-          ),
-        );
-      }
-
-      return ErrorResult(
-        error: TaskException('Falha ao excluir tarefa: ${result.statusCode}'),
+      await syncTasks(pull: false);
+      return SuccessResult(
+        value: DeletedTaskModel(
+          title: 'Task excluida',
+          description: 'A task ${deleted.title} foi removida',
+        ),
       );
     } catch (error) {
       return ErrorResult(error: TaskException('Erro inesperado: $error'));
     }
+  }
+
+  @override
+  Future<bool> syncTasks({bool pull = true}) async {
+    if (_isSyncing) return false;
+    _isSyncing = true;
+    try {
+      try {
+        await connectionService.checkConnection();
+      } catch (_) {
+        return false;
+      }
+      if (!connectionService.isConnected) return false;
+
+      final pushed = await _pushPending();
+      if (!pushed) return false;
+
+      if (pull) {
+        final result = await httpService.getData(path: ApiConstant.tasks);
+        if (result.statusCode != 200 || result.data == null) return false;
+        final remote = (result.data as List)
+            .map((e) => TaskModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+        await localDataSource.replaceSynced(remote);
+      }
+      return true;
+    } catch (_) {
+      return false;
+    } finally {
+      _isSyncing = false;
+    }
+  }
+
+  Future<bool> _pushPending() async {
+    final pending = await localDataSource.getPending();
+    for (final task in pending) {
+      final ok = switch (task.syncState) {
+        TaskSyncState.created => await _pushCreate(task),
+        TaskSyncState.updated => await _pushUpdate(task),
+        TaskSyncState.deleted => await _pushDelete(task),
+        TaskSyncState.synced => true,
+      };
+      if (!ok) return false;
+    }
+    return true;
+  }
+
+  bool _isSuccess(HttpResult r) =>
+      (r.statusCode == 200 || r.statusCode == 201) && r.data != null;
+
+  Future<bool> _pushCreate(TaskModel task) async {
+    final result = await httpService.postData(
+      path: ApiConstant.tasks,
+      body: {'title': task.title, 'content': task.content},
+    );
+    if (!_isSuccess(result)) return false;
+
+    var remote = TaskModel.fromJson(result.data as Map<String, dynamic>);
+    await localDataSource.markSynced(task.id, remote);
+
+    if (task.isCompleted) {
+      final updated = await httpService.putData(
+        path: '${ApiConstant.tasks}/${remote.id}',
+        body: {'isCompleted': true},
+      );
+      if (!_isSuccess(updated)) {
+        await localDataSource.update(
+          id: task.id,
+          title: task.title,
+          content: task.content,
+          isCompleted: true,
+          now: task.updatedAt,
+        );
+        return false;
+      }
+      remote = TaskModel.fromJson(updated.data as Map<String, dynamic>);
+      await localDataSource.markSynced(task.id, remote);
+    }
+    return true;
+  }
+
+  Future<bool> _pushUpdate(TaskModel task) async {
+    final result = await httpService.putData(
+      path: '${ApiConstant.tasks}/${task.remoteId}',
+      body: {
+        'title': task.title,
+        'content': task.content,
+        'isCompleted': task.isCompleted,
+        'clientUpdatedAt': task.updatedAt.toUtc().toIso8601String(),
+      },
+    );
+    if (result.statusCode == 404) {
+      await localDataSource.remove(task.id);
+      return true;
+    }
+    if (!_isSuccess(result)) return false;
+    await localDataSource.markSynced(
+      task.id,
+      TaskModel.fromJson(result.data as Map<String, dynamic>),
+    );
+    return true;
+  }
+
+  Future<bool> _pushDelete(TaskModel task) async {
+    final result = await httpService.deleteData(
+      path: '${ApiConstant.tasks}/${task.remoteId}',
+    );
+    if (result.statusCode == 200 || result.statusCode == 404) {
+      await localDataSource.remove(task.id);
+      return true;
+    }
+    return false;
   }
 }

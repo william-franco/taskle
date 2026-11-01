@@ -31,18 +31,20 @@ class _TaskDetailViewState extends State<TaskDetailView> {
         viewModel: widget.taskViewModel,
         listener: (context, screenState) {
           if (screenState.deleted is SuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tarefa excluída')),
-            );
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text('Tarefa excluída')));
             widget.taskViewModel.resetDeletedTaskState();
             context.go(TaskRoutes.tasks);
           }
         },
         builder: (context, screenState) {
           TaskModel current = widget.task;
-          if (screenState.tasks is SuccessState<List<TaskModel>, TaskException>) {
+          if (screenState.tasks
+              is SuccessState<List<TaskModel>, TaskException>) {
             final list =
-                (screenState.tasks as SuccessState<List<TaskModel>, TaskException>).data;
+                (screenState.tasks
+                        as SuccessState<List<TaskModel>, TaskException>)
+                    .data;
             current = list.firstWhere(
               (t) => t.id == widget.task.id,
               orElse: () => widget.task,
@@ -54,7 +56,10 @@ class _TaskDetailViewState extends State<TaskDetailView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(current.title, style: Theme.of(context).textTheme.headlineSmall),
+                Text(
+                  current.title,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
                 const SizedBox(height: 8),
                 Chip(
                   label: Text(current.isCompleted ? 'Concluída' : 'Pendente'),
@@ -91,7 +96,10 @@ class _TaskDetailViewState extends State<TaskDetailView> {
         title: const Text('Excluir tarefa'),
         content: const Text('Esta ação não pode ser desfeita.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);

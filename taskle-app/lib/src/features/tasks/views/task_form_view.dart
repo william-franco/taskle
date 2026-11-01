@@ -1,3 +1,4 @@
+import 'package:taskle_app/src/common/validators/validators.dart';
 import 'package:taskle_app/src/common/patterns/state_pattern.dart';
 import 'package:taskle_app/src/common/state_management/state_management.dart';
 import 'package:taskle_app/src/features/tasks/exceptions/task_exception.dart';
@@ -68,10 +69,10 @@ class _TaskFormViewState extends State<TaskFormView> {
           }
           if (screenState.mutation is ErrorState<TaskModel, TaskException>) {
             final error =
-                (screenState.mutation as ErrorState<TaskModel, TaskException>).error;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(error.message)),
-            );
+                (screenState.mutation as ErrorState<TaskModel, TaskException>)
+                    .error;
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(error.message)));
           }
         },
         builder: (context, screenState) {
@@ -95,7 +96,9 @@ class _TaskFormViewState extends State<TaskFormView> {
                   SwitchListTile(
                     title: const Text('Concluída'),
                     value: _isCompleted,
-                    onChanged: loading ? null : (v) => setState(() => _isCompleted = v),
+                    onChanged: loading
+                        ? null
+                        : (v) => setState(() => _isCompleted = v),
                   ),
                 ],
                 const Spacer(),
@@ -120,10 +123,10 @@ class _TaskFormViewState extends State<TaskFormView> {
   void _submit() {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
-    if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Informe o título')),
-      );
+    final titleError = Validators.taskTitle(title);
+    if (titleError != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(titleError)));
       return;
     }
     if (isEditing) {

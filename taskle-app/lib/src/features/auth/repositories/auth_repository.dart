@@ -6,6 +6,7 @@ import 'package:taskle_app/src/common/services/http_service.dart';
 import 'package:taskle_app/src/common/services/storage_service.dart';
 import 'package:taskle_app/src/features/auth/exceptions/auth_exception.dart';
 import 'package:taskle_app/src/features/auth/models/auth_model.dart';
+import 'package:taskle_app/src/features/tasks/data_sources/task_local_data_source.dart';
 
 typedef AuthResult = ResultPattern<AuthModel, AuthException>;
 
@@ -30,11 +31,13 @@ class AuthRepositoryImpl implements AuthRepository {
   final ConnectionService connectionService;
   final HttpService httpService;
   final StorageService storageService;
+  final TaskLocalDataSource? taskLocalDataSource;
 
   AuthRepositoryImpl({
     required this.connectionService,
     required this.httpService,
     required this.storageService,
+    this.taskLocalDataSource,
   });
 
   @override
@@ -99,6 +102,8 @@ class AuthRepositoryImpl implements AuthRepository {
         body: {'refreshToken': refresh},
       );
     }
+
+    await taskLocalDataSource?.clear();
 
     await storageService.removeValue(key: ValueConstant.jwtToken);
     await storageService.removeValue(key: ValueConstant.refreshToken);

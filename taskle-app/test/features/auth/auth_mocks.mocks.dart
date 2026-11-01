@@ -64,6 +64,12 @@ class MockConnectionService extends _i1.Mock implements _i3.ConnectionService {
           as bool);
 
   @override
+  _i4.Stream<bool> get onConnectionChanged => (super.noSuchMethod(
+    Invocation.getter(#onConnectionChanged),
+    returnValue: _i4.Stream<bool>.empty(),
+  ) as _i4.Stream<bool>);
+
+  @override
   _i4.Future<void> checkConnection() => (super.noSuchMethod(
     Invocation.method(#checkConnection, []),
     returnValue: _i4.Future<void>.value(),

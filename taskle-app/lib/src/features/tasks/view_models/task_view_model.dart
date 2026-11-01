@@ -5,12 +5,17 @@ import 'package:taskle_app/src/features/tasks/exceptions/task_exception.dart';
 import 'package:taskle_app/src/features/tasks/models/task_model.dart';
 import 'package:taskle_app/src/features/tasks/models/task_screen_state.dart';
 import 'package:taskle_app/src/features/tasks/repositories/task_repository.dart';
+
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 typedef _ViewModel = StateManagement<TaskScreenState>;
 
 abstract interface class TaskViewModel extends _ViewModel {
   Future<void> getAllTasks();
+
+  void startConnectionSync();
   Future<void> createTask({required String title, required String content});
   Future<void> updateTask({
     required int id,
@@ -31,15 +36,44 @@ class TaskViewModelImpl extends _ViewModel implements TaskViewModel {
   @override
   TaskScreenState build() => const TaskScreenState();
 
+  StreamSubscription<bool>? _connectionSubscription;
+
+  @override
+  void startConnectionSync() {
+    _connectionSubscription ??= taskRepository.onConnectionChanged.listen((
+      isConnected,
+    ) {
+      if (isConnected) {
+        getAllTasks();
+      } else {
+        _emit(state.copyWith(isOffline: true));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectionSubscription?.cancel();
+    super.dispose();
+  }
+
   @override
   Future<void> getAllTasks() async {
-    _emit(state.copyWith(tasks: const LoadingState()));
+    final local = await taskRepository.findLocalTasks();
+    if (local is SuccessResult<List<TaskModel>, TaskException>) {
+      _emit(state.copyWith(tasks: SuccessState(data: local.value)));
+    } else {
+      _emit(state.copyWith(tasks: const LoadingState()));
+    }
+
     final result = await taskRepository.findAllTasks();
     final tasksState = result.fold<TasksState>(
       onSuccess: (value) => SuccessState(data: value),
       onError: (error) => ErrorState(error: error),
     );
-    _emit(state.copyWith(tasks: tasksState));
+    _emit(
+      state.copyWith(tasks: tasksState, isOffline: !taskRepository.isOnline),
+    );
   }
 
   @override
@@ -48,7 +82,10 @@ class TaskViewModelImpl extends _ViewModel implements TaskViewModel {
     required String content,
   }) async {
     _emit(state.copyWith(mutation: const LoadingState()));
-    final result = await taskRepository.createTask(title: title, content: content);
+    final result = await taskRepository.createTask(
+      title: title,
+      content: content,
+    );
     final mutationState = result.fold<TaskMutationState>(
       onSuccess: (value) => SuccessState(data: value),
       onError: (error) => ErrorState(error: error),

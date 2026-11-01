@@ -60,6 +60,12 @@ class MockConnectionService extends _i1.Mock implements _i3.ConnectionService {
           as bool);
 
   @override
+  _i4.Stream<bool> get onConnectionChanged => (super.noSuchMethod(
+    Invocation.getter(#onConnectionChanged),
+    returnValue: _i4.Stream<bool>.empty(),
+  ) as _i4.Stream<bool>);
+
+  @override
   _i4.Future<void> checkConnection() => (super.noSuchMethod(
     Invocation.method(#checkConnection, []),
     returnValue: _i4.Future<void>.value(),
@@ -139,6 +145,31 @@ class MockTaskRepository extends _i1.Mock implements _i6.TaskRepository {
   }
 
   @override
+  bool get isOnline =>
+      (super.noSuchMethod(Invocation.getter(#isOnline), returnValue: false)
+          as bool);
+
+  @override
+  _i4.Stream<bool> get onConnectionChanged => (super.noSuchMethod(
+    Invocation.getter(#onConnectionChanged),
+    returnValue: _i4.Stream<bool>.empty(),
+  ) as _i4.Stream<bool>);
+
+  @override
+  _i4.Future<_i7.ResultPattern<List<_i8.TaskModel>, _i9.TaskException>>
+  findLocalTasks() => (super.noSuchMethod(
+    Invocation.method(#findLocalTasks, []),
+    returnValue:
+        _i4.Future<
+          _i7.ResultPattern<List<_i8.TaskModel>, _i9.TaskException>
+        >.value(
+          _i10.dummyValue<
+            _i7.ResultPattern<List<_i8.TaskModel>, _i9.TaskException>
+          >(this, Invocation.method(#findLocalTasks, [])),
+        ),
+  ) as _i4.Future<_i7.ResultPattern<List<_i8.TaskModel>, _i9.TaskException>>);
+
+  @override
   _i4.Future<_i7.ResultPattern<List<_i8.TaskModel>, _i9.TaskException>>
   findAllTasks() => (super.noSuchMethod(
     Invocation.method(#findAllTasks, []),
@@ -210,6 +241,12 @@ class MockTaskRepository extends _i1.Mock implements _i6.TaskRepository {
           >(this, Invocation.method(#deleteTask, [id])),
         ),
   ) as _i4.Future<_i7.ResultPattern<_i11.DeletedTaskModel, _i9.TaskException>>);
+
+  @override
+  _i4.Future<bool> syncTasks() => (super.noSuchMethod(
+    Invocation.method(#syncTasks, []),
+    returnValue: _i4.Future<bool>.value(false),
+  ) as _i4.Future<bool>);
 }
 
 /// A class which mocks [TaskViewModel].
@@ -237,6 +274,12 @@ class MockTaskViewModel extends _i1.Mock implements _i12.TaskViewModel {
     returnValue: _i4.Future<void>.value(),
     returnValueForMissingStub: _i4.Future<void>.value(),
   ) as _i4.Future<void>);
+
+  @override
+  void startConnectionSync() => super.noSuchMethod(
+    Invocation.method(#startConnectionSync, []),
+    returnValueForMissingStub: null,
+  );
 
   @override
   _i4.Future<void> createTask({

@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 
 abstract interface class ConnectionService {
   bool get isConnected;
   Future<void> checkConnection();
+
+  Stream<bool> get onConnectionChanged;
 }
 
 class ConnectionServiceImpl implements ConnectionService {
@@ -13,6 +17,13 @@ class ConnectionServiceImpl implements ConnectionService {
 
   @override
   bool get isConnected => _isConnected;
+
+  @override
+  Stream<bool> get onConnectionChanged =>
+      _connectivity.onConnectivityChanged.map((result) {
+        _isConnected = !result.contains(ConnectivityResult.none);
+        return _isConnected;
+      });
 
   @override
   Future<void> checkConnection() async {

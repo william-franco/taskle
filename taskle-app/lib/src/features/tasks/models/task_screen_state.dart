@@ -11,22 +11,26 @@ class TaskScreenState {
   final TasksState tasks;
   final TaskMutationState mutation;
   final DeletedTaskState deleted;
+  final bool isOffline;
 
   const TaskScreenState({
     this.tasks = const InitialState(),
     this.mutation = const InitialState(),
     this.deleted = const InitialState(),
+    this.isOffline = false,
   });
 
   TaskScreenState copyWith({
     TasksState? tasks,
     TaskMutationState? mutation,
     DeletedTaskState? deleted,
+    bool? isOffline,
   }) {
     return TaskScreenState(
       tasks: tasks ?? this.tasks,
       mutation: mutation ?? this.mutation,
       deleted: deleted ?? this.deleted,
+      isOffline: isOffline ?? this.isOffline,
     );
   }
 
@@ -36,8 +40,9 @@ class TaskScreenState {
       other is TaskScreenState &&
           tasks == other.tasks &&
           mutation == other.mutation &&
-          deleted == other.deleted;
+          deleted == other.deleted &&
+          isOffline == other.isOffline;
 
   @override
-  int get hashCode => Object.hash(tasks, mutation, deleted);
+  int get hashCode => Object.hash(tasks, mutation, deleted, isOffline);
 }

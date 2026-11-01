@@ -259,6 +259,13 @@ apiV1.MapPut("/tasks/{id:int}", async (int id, TaskUpdateRequest request, Claims
     var task = await db.TaskItems.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId.Value);
     if (task is null) return Results.NotFound();
 
+    // Offline sync (last-write-wins): ignore stale client changes and return the server version.
+    if (request.ClientUpdatedAt.HasValue &&
+        request.ClientUpdatedAt.Value.ToUniversalTime() < task.UpdatedAt.ToUniversalTime())
+    {
+        return Results.Ok(TaskDto.FromEntity(task));
+    }
+
     if (!string.IsNullOrWhiteSpace(request.Title)) task.Title = request.Title.Trim();
     if (request.Content is not null) task.Content = request.Content.Trim();
     if (request.IsCompleted.HasValue) task.IsCompleted = request.IsCompleted.Value;
@@ -426,7 +433,7 @@ record RegisterRequest(string Name, string Email, string Password);
 record LoginRequest(string Email, string Password);
 record RefreshRequest([property: JsonPropertyName("refreshToken")] string RefreshToken);
 record TaskRequest(string Title, string? Content);
-record TaskUpdateRequest(string? Title, string? Content, bool? IsCompleted);
+record TaskUpdateRequest(string? Title, string? Content, bool? IsCompleted, DateTime? ClientUpdatedAt = null);
 
 record AuthResponse(
     [property: JsonPropertyName("accessToken")] string AccessToken,
