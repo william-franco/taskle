@@ -22,10 +22,7 @@ class LoginViewModelImpl extends _ViewModel implements LoginViewModel {
   LoginState build() => const InitialState();
 
   @override
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     _emit(const LoadingState());
     final result = await authRepository.login(email: email, password: password);
     _emitResult(result);

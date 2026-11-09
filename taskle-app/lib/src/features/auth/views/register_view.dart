@@ -95,17 +95,15 @@ class _RegisterViewState extends State<RegisterView> {
           Text(
             'Criar sua conta',
             textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             'Preencha os dados abaixo',
             textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: Colors.grey),
           ),
           const SizedBox(height: 32),
           TextFormField(

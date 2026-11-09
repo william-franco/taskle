@@ -17,10 +17,7 @@ abstract interface class AuthRepository {
     required String password,
   });
 
-  Future<AuthResult> login({
-    required String email,
-    required String password,
-  });
+  Future<AuthResult> login({required String email, required String password});
 
   Future<void> logout();
 
@@ -82,7 +79,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return SuccessResult(value: auth);
       }
 
-      final message = _extractMessage(result.data) ??
+      final message =
+          _extractMessage(result.data) ??
           'Falha na autenticação: ${result.statusCode}';
       return ErrorResult(error: AuthException(message));
     } catch (error) {

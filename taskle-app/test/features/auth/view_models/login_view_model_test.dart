@@ -43,7 +43,10 @@ void main() {
 
   test('login success emits SuccessState', () async {
     when(
-      mockRepository.login(email: anyNamed('email'), password: anyNamed('password')),
+      mockRepository.login(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      ),
     ).thenAnswer((_) async => SuccessResult(value: authModel));
 
     await viewModel.login(email: 'test@example.com', password: 'password123');
@@ -53,7 +56,10 @@ void main() {
 
   test('login error emits ErrorState', () async {
     when(
-      mockRepository.login(email: anyNamed('email'), password: anyNamed('password')),
+      mockRepository.login(
+        email: anyNamed('email'),
+        password: anyNamed('password'),
+      ),
     ).thenAnswer(
       (_) async => ErrorResult(error: AuthException('Invalid credentials')),
     );

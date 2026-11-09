@@ -10,7 +10,8 @@ abstract interface class AuthSessionViewModel extends _ViewModel {
   Future<void> logout();
 }
 
-class AuthSessionViewModelImpl extends _ViewModel implements AuthSessionViewModel {
+class AuthSessionViewModelImpl extends _ViewModel
+    implements AuthSessionViewModel {
   final AuthRepository authRepository;
 
   AuthSessionViewModelImpl({required this.authRepository});

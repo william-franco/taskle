@@ -11,10 +11,7 @@ Future<void> main() async {
   await initDependencies();
   final Routes appRoutes = Routes();
   runApp(
-    MyApp(
-      appRoutes: appRoutes,
-      settingViewModel: locator<SettingViewModel>(),
-    ),
+    MyApp(appRoutes: appRoutes, settingViewModel: locator<SettingViewModel>()),
   );
 }
 

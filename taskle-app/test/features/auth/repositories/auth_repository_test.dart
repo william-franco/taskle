@@ -31,10 +31,7 @@ void main() {
     test('returns SuccessResult and saves tokens on 200', () async {
       when(mockConnection.checkConnection()).thenAnswer((_) async {});
       when(
-        mockHttp.postData(
-          path: ApiConstant.authLogin,
-          body: anyNamed('body'),
-        ),
+        mockHttp.postData(path: ApiConstant.authLogin, body: anyNamed('body')),
       ).thenAnswer(
         (_) async => (
           statusCode: 200,
@@ -52,7 +49,10 @@ void main() {
         ),
       );
       when(
-        mockStorage.setStringValue(key: anyNamed('key'), value: anyNamed('value')),
+        mockStorage.setStringValue(
+          key: anyNamed('key'),
+          value: anyNamed('value'),
+        ),
       ).thenAnswer((_) async {});
 
       final result = await repository.login(

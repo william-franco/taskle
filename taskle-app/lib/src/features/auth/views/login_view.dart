@@ -91,17 +91,15 @@ class _LoginViewState extends State<LoginView> {
           Text(
             'Bem-vindo de volta',
             textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             'Entre para continuar',
             textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: Colors.grey),
           ),
           const SizedBox(height: 48),
           TextFormField(

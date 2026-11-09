@@ -18,9 +18,7 @@ class AuthRoutes {
     GoRoute(
       path: auth,
       builder: (context, state) {
-        return AuthView(
-          authSessionViewModel: locator<AuthSessionViewModel>(),
-        );
+        return AuthView(authSessionViewModel: locator<AuthSessionViewModel>());
       },
     ),
     GoRoute(
@@ -32,9 +30,7 @@ class AuthRoutes {
     GoRoute(
       path: register,
       builder: (context, state) {
-        return RegisterView(
-          registerViewModel: locator<RegisterViewModel>(),
-        );
+        return RegisterView(registerViewModel: locator<RegisterViewModel>());
       },
     ),
   ];

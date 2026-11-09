@@ -50,11 +50,15 @@ class HttpServiceImpl implements HttpService {
             handler.next(options);
           },
           onResponse: (response, handler) {
-            debugPrint('✅ ${response.statusCode} ${response.requestOptions.path}');
+            debugPrint(
+              '✅ ${response.statusCode} ${response.requestOptions.path}',
+            );
             handler.next(response);
           },
           onError: (error, handler) async {
-            debugPrint('❌ ${error.response?.statusCode} ${error.requestOptions.path}');
+            debugPrint(
+              '❌ ${error.response?.statusCode} ${error.requestOptions.path}',
+            );
 
             if (error.response?.statusCode == 401 && !_isRefreshing) {
               _isRefreshing = true;
@@ -107,8 +111,7 @@ class HttpServiceImpl implements HttpService {
     error: e.message,
   );
 
-  HttpResult _generic(Object e) =>
-      (statusCode: null, data: null, error: '$e');
+  HttpResult _generic(Object e) => (statusCode: null, data: null, error: '$e');
 
   @override
   Future<HttpResult> getData({required String path}) async {

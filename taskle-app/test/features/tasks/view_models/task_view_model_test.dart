@@ -33,9 +33,8 @@ void main() {
   setUp(() {
     mockRepository = MockTaskRepository();
     viewModel = TaskViewModelImpl(taskRepository: mockRepository);
-    when(mockRepository.findLocalTasks()).thenAnswer(
-      (_) async => SuccessResult(value: <TaskModel>[]),
-    );
+    when(mockRepository.findLocalTasks())
+        .thenAnswer((_) async => SuccessResult(value: <TaskModel>[]));
     when(mockRepository.isOnline).thenReturn(true);
   });
 
@@ -48,9 +47,8 @@ void main() {
   });
 
   test('getAllTasks success', () async {
-    when(mockRepository.findAllTasks()).thenAnswer(
-      (_) async => SuccessResult(value: [sampleTask]),
-    );
+    when(mockRepository.findAllTasks())
+        .thenAnswer((_) async => SuccessResult(value: [sampleTask]));
 
     await viewModel.getAllTasks();
 
@@ -67,9 +65,8 @@ void main() {
         content: anyNamed('content'),
       ),
     ).thenAnswer((_) async => SuccessResult(value: sampleTask));
-    when(mockRepository.findAllTasks()).thenAnswer(
-      (_) async => SuccessResult(value: [sampleTask]),
-    );
+    when(mockRepository.findAllTasks())
+        .thenAnswer((_) async => SuccessResult(value: [sampleTask]));
 
     await viewModel.createTask(title: 'T', content: 'Content long enough');
 

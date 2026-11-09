@@ -80,10 +80,9 @@ class FakeTaskLocalDataSource implements TaskLocalDataSource {
   }
 
   @override
-  Future<List<TaskModel>> getPending() async => rows.values
-      .where((t) => t.syncState != TaskSyncState.synced)
-      .toList()
-    ..sort((a, b) => a.id.compareTo(b.id));
+  Future<List<TaskModel>> getPending() async =>
+      rows.values.where((t) => t.syncState != TaskSyncState.synced).toList()
+        ..sort((a, b) => a.id.compareTo(b.id));
 
   @override
   Future<void> markSynced(int id, TaskModel remote) async {
@@ -97,7 +96,8 @@ class FakeTaskLocalDataSource implements TaskLocalDataSource {
   Future<void> replaceSynced(List<TaskModel> remote) async {
     final ids = remote.map((e) => e.remoteId).toSet();
     rows.removeWhere(
-      (_, t) => t.syncState == TaskSyncState.synced && !ids.contains(t.remoteId),
+      (_, t) =>
+          t.syncState == TaskSyncState.synced && !ids.contains(t.remoteId),
     );
     for (final task in remote) {
       final entry = rows.entries
@@ -140,7 +140,12 @@ void main() {
     );
   });
 
-  Map<String, dynamic> json(int id, {String title = 'Title', bool done = false, String updatedAt = '2024-01-01T00:00:00.000Z'}) => {
+  Map<String, dynamic> json(
+    int id, {
+    String title = 'Title',
+    bool done = false,
+    String updatedAt = '2024-01-01T00:00:00.000Z',
+  }) => {
     'id': id,
     'title': title,
     'content': 'Content',
@@ -150,28 +155,30 @@ void main() {
   };
 
   test('findAllTasks pulls remote tasks into the local cache', () async {
-    when(mockHttp.getData(path: ApiConstant.tasks)).thenAnswer(
-      (_) async => (statusCode: 200, data: [json(10)], error: null),
-    );
+    when(
+      mockHttp.getData(path: ApiConstant.tasks),
+    ).thenAnswer((_) async => (statusCode: 200, data: [json(10)], error: null));
 
     final result = await repository.findAllTasks();
 
-    final tasks = (result as SuccessResult<List<TaskModel>, TaskException>).value;
+    final tasks =
+        (result as SuccessResult<List<TaskModel>, TaskException>).value;
     expect(tasks, hasLength(1));
     expect(tasks.first.remoteId, 10);
     expect(tasks.first.isPendingSync, isFalse);
   });
 
   test('findAllTasks returns cached tasks when offline', () async {
-    when(mockHttp.getData(path: ApiConstant.tasks)).thenAnswer(
-      (_) async => (statusCode: 200, data: [json(10)], error: null),
-    );
+    when(
+      mockHttp.getData(path: ApiConstant.tasks),
+    ).thenAnswer((_) async => (statusCode: 200, data: [json(10)], error: null));
     await repository.findAllTasks();
 
     online = false;
     final result = await repository.findAllTasks();
 
-    final tasks = (result as SuccessResult<List<TaskModel>, TaskException>).value;
+    final tasks =
+        (result as SuccessResult<List<TaskModel>, TaskException>).value;
     expect(tasks, hasLength(1));
     verify(mockHttp.getData(path: ApiConstant.tasks)).called(1);
   });
@@ -184,29 +191,38 @@ void main() {
     final task = (result as SuccessResult<TaskModel, TaskException>).value;
     expect(task.syncState, TaskSyncState.created);
     expect(task.remoteId, isNull);
-    verifyNever(mockHttp.postData(path: anyNamed('path'), body: anyNamed('body')));
-  });
-
-  test('pending create is pushed when connection returns, keeping local id', () async {
-    online = false;
-    final created = await repository.createTask(title: 'A', content: 'B');
-    final localId = (created as SuccessResult<TaskModel, TaskException>).value.id;
-
-    online = true;
-    when(
-      mockHttp.postData(path: ApiConstant.tasks, body: anyNamed('body')),
-    ).thenAnswer((_) async => (statusCode: 201, data: json(99, title: 'A'), error: null));
-    when(mockHttp.getData(path: ApiConstant.tasks)).thenAnswer(
-      (_) async => (statusCode: 200, data: [json(99, title: 'A')], error: null),
+    verifyNever(
+      mockHttp.postData(path: anyNamed('path'), body: anyNamed('body')),
     );
-
-    expect(await repository.syncTasks(), isTrue);
-
-    final task = (await local.getById(localId))!;
-    expect(task.remoteId, 99);
-    expect(task.isPendingSync, isFalse);
-    expect(local.rows, hasLength(1));
   });
+
+  test(
+    'pending create is pushed when connection returns, keeping local id',
+    () async {
+      online = false;
+      final created = await repository.createTask(title: 'A', content: 'B');
+      final localId =
+          (created as SuccessResult<TaskModel, TaskException>).value.id;
+
+      online = true;
+      when(mockHttp.postData(path: ApiConstant.tasks, body: anyNamed('body')))
+          .thenAnswer(
+            (_) async =>
+                (statusCode: 201, data: json(99, title: 'A'), error: null),
+          );
+      when(mockHttp.getData(path: ApiConstant.tasks)).thenAnswer(
+        (_) async =>
+            (statusCode: 200, data: [json(99, title: 'A')], error: null),
+      );
+
+      expect(await repository.syncTasks(), isTrue);
+
+      final task = (await local.getById(localId))!;
+      expect(task.remoteId, 99);
+      expect(task.isPendingSync, isFalse);
+      expect(local.rows, hasLength(1));
+    },
+  );
 
   test('create then delete offline never reaches the server', () async {
     online = false;
@@ -219,40 +235,62 @@ void main() {
     expect(await local.getPending(), isEmpty);
   });
 
-  test('update offline sends clientUpdatedAt (last-write-wins) on sync', () async {
-    when(mockHttp.getData(path: ApiConstant.tasks)).thenAnswer(
-      (_) async => (statusCode: 200, data: [json(10)], error: null),
-    );
-    await repository.findAllTasks();
-    final id = local.rows.keys.first;
+  test(
+    'update offline sends clientUpdatedAt (last-write-wins) on sync',
+    () async {
+      when(mockHttp.getData(path: ApiConstant.tasks)).thenAnswer(
+        (_) async => (statusCode: 200, data: [json(10)], error: null),
+      );
+      await repository.findAllTasks();
+      final id = local.rows.keys.first;
 
-    online = false;
-    await repository.updateTask(id: id, title: 'New', content: 'C', isCompleted: true);
-    expect((await local.getById(id))!.syncState, TaskSyncState.updated);
+      online = false;
+      await repository.updateTask(
+        id: id,
+        title: 'New',
+        content: 'C',
+        isCompleted: true,
+      );
+      expect((await local.getById(id))!.syncState, TaskSyncState.updated);
 
-    online = true;
-    when(
-      mockHttp.putData(path: '${ApiConstant.tasks}/10', body: anyNamed('body')),
-    ).thenAnswer(
-      (_) async => (statusCode: 200, data: json(10, title: 'Server', updatedAt: '2030-01-01T00:00:00.000Z'), error: null),
-    );
-    await repository.syncTasks(pull: false);
+      online = true;
+      when(
+        mockHttp.putData(
+          path: '${ApiConstant.tasks}/10',
+          body: anyNamed('body'),
+        ),
+      ).thenAnswer(
+        (_) async => (
+          statusCode: 200,
+          data: json(
+            10,
+            title: 'Server',
+            updatedAt: '2030-01-01T00:00:00.000Z',
+          ),
+          error: null,
+        ),
+      );
+      await repository.syncTasks(pull: false);
 
-    verify(
-      mockHttp.putData(
-        path: '${ApiConstant.tasks}/10',
-        body: argThat(containsPair('clientUpdatedAt', isA<String>()), named: 'body'),
-      ),
-    ).called(1);
-    final task = (await local.getById(id))!;
-    expect(task.title, 'Server');
-    expect(task.isPendingSync, isFalse);
-  });
+      verify(
+        mockHttp.putData(
+          path: '${ApiConstant.tasks}/10',
+          body: argThat(
+            containsPair('clientUpdatedAt', isA<String>()),
+            named: 'body',
+          ),
+        ),
+      ).called(1);
+      final task = (await local.getById(id))!;
+      expect(task.title, 'Server');
+      expect(task.isPendingSync, isFalse);
+    },
+  );
 
   test('delete offline is pushed later and removes the row', () async {
-    when(mockHttp.getData(path: ApiConstant.tasks)).thenAnswer(
-      (_) async => (statusCode: 200, data: [json(10)], error: null),
-    );
+    when(
+      mockHttp.getData(path: ApiConstant.tasks),
+    ).thenAnswer((_) async => (statusCode: 200, data: [json(10)], error: null));
     await repository.findAllTasks();
     final id = local.rows.keys.first;
 
@@ -263,7 +301,11 @@ void main() {
 
     online = true;
     when(mockHttp.deleteData(path: '${ApiConstant.tasks}/10')).thenAnswer(
-      (_) async => (statusCode: 200, data: {'title': 't', 'description': 'd'}, error: null),
+      (_) async => (
+        statusCode: 200,
+        data: {'title': 't', 'description': 'd'},
+        error: null,
+      ),
     );
     await repository.syncTasks(pull: false);
 

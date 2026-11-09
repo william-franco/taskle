@@ -61,7 +61,10 @@ class StorageServiceImpl implements StorageService {
   }
 
   @override
-  Future<void> setStringValue({required String key, required String value}) async {
+  Future<void> setStringValue({
+    required String key,
+    required String value,
+  }) async {
     try {
       await _storage.setString(key, value);
     } catch (error) {
