@@ -5,7 +5,7 @@ import 'package:taskle_app/src/features/auth/exceptions/auth_exception.dart';
 import 'package:taskle_app/src/features/auth/models/auth_model.dart';
 import 'package:taskle_app/src/features/auth/view_models/register_view_model.dart';
 import 'package:taskle_app/src/features/tasks/routes/task_routes.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 class RegisterView extends StatefulWidget {

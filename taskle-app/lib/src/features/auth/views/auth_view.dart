@@ -1,7 +1,7 @@
 import 'package:taskle_app/src/features/auth/routes/auth_routes.dart';
 import 'package:taskle_app/src/features/auth/view_models/auth_session_view_model.dart';
 import 'package:taskle_app/src/features/tasks/routes/task_routes.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 class AuthView extends StatefulWidget {

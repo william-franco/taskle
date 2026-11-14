@@ -10,7 +10,7 @@ import 'package:taskle_app/src/features/tasks/widgets/status_banner.dart';
 import 'package:taskle_app/src/features/tasks/widgets/task_card.dart';
 import 'package:taskle_app/src/features/tasks/widgets/task_empty_state.dart';
 import 'package:taskle_app/src/features/tasks/widgets/task_error_state.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 class TaskView extends StatefulWidget {
