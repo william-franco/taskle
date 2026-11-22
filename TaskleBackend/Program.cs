@@ -463,3 +463,5 @@ record TaskDto(
 }
 
 record DeleteTaskResponse(string Title, string Description);
+
+public partial class Program;

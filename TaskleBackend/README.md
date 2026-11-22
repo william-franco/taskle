@@ -34,6 +34,28 @@ dotnet build
 dotnet run
 ```
 
+## Integration tests (E2E)
+
+```
+cd TaskleBackend.IntegrationTests
+dotnet test --configuration Release
+```
+
+Monorepo: `./flutter-backend-e2e.sh test taskle` · smoke: `./flutter-backend-e2e.sh smoke taskle`.
+
+## Run with Kiri (Docker)
+
+Com o Kiri ativo, na pasta deste backend:
+
+```
+kiri compose build
+kiri compose up -d
+```
+
+Ou: `./flutter-backend-kiri.sh up taskle` (monorepo `flutter-apps`).
+
+SQLite em volume; `Development` com Scalar. Encerrar: `kiri compose down`.
+
 ## Accessing
 
 API: http://localhost:5062/api/v1 · OpenAPI: http://localhost:5062/openapi/v1.json · Scalar: http://localhost:5062/scalar

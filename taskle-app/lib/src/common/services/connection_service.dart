@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -30,7 +31,12 @@ class ConnectionServiceImpl implements ConnectionService {
     try {
       final List<ConnectivityResult> result = await _connectivity
           .checkConnectivity();
-      final bool hasConnection = !result.contains(ConnectivityResult.none);
+      var hasConnection = !result.contains(ConnectivityResult.none);
+      if (!hasConnection && !kIsWeb) {
+        if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+          hasConnection = true;
+        }
+      }
 
       _isConnected = hasConnection;
       debugPrint('Connected? $hasConnection');

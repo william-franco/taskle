@@ -1,0 +1,14 @@
+services:
+  api:
+    build: .
+    image: taskle-backend:local
+    ports:
+      - "5062:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: Data Source=/data/taskle.db
+    volumes:
+      - taskle_sqlite:/data
+
+volumes:
+  taskle_sqlite:
