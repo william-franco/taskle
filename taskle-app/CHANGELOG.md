@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## 2026-11-22
+
+- Commit: Added backend Docker/Kiri, .NET integration E2E, Flutter Linux E2E, and CI jobs.
+  - Flutter integration_test on Linux, app CI E2E step, and refreshed linux host for desktop tests.
+- Commit: Use material_ui in integration_test to fix Flutter analyze deprecation.
+  - Replaced legacy material.dart imports in integration tests for current Flutter stable analyze.
+
 ## 2026-11-14
 
 - Commit: Updated toolchain to Dart SDK ^3.14.0, Gradle 9.5.0, Android Gradle Plugin 9.3.1 and Kotlin 2.4.20.

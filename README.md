@@ -43,6 +43,10 @@ A API REST sobe em `http://localhost:5062/api/v1`. O banco é criado/atualizado 
 
 Para migrations, pacotes e Scalar, consulte [`TaskleBackend/README.md`](TaskleBackend/README.md).
 
+#### Backend com Kiri (Docker)
+
+Alternativa ao `dotnet run`: com [Kiri](https://kiri.dev) ativo, em `TaskleBackend` execute `kiri compose up -d` (API em **http://localhost:5062/api/v1**). Na pasta do monorepo `flutter-apps`: `./flutter-backend-kiri.sh up taskle`. Ver [Run with Kiri (Docker)](TaskleBackend/README.md#run-with-kiri-docker) no README do backend.
+
 ### 2. App Flutter
 
 ```bash
