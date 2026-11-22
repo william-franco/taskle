@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## 2026-11-22
 
+- Linux CI E2E runs under xvfb-run for headless GitHub Actions runners.
+- Flutter CI E2E smoke (CI_SMOKE) without Docker in the Flutter job.
+- Full-stack Flutter CI uses CI_SMOKE (login screen only); live API E2E is local with backend up.
+
 - Commit: Added backend Docker/Kiri, .NET integration E2E, Flutter Linux E2E, and CI jobs.
   - Flutter integration_test on Linux, app CI E2E step, and refreshed linux host for desktop tests.
 - Commit: Use material_ui in integration_test to fix Flutter analyze deprecation.

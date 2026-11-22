@@ -103,6 +103,15 @@ flowchart TD
 4. Crie ou edite tarefas pelo FAB ou detalhe
 5. Ajuste tema em Configurações
 
+## E2E Flutter (Linux)
+
+- **CI:** o job Flutter roda `integration_test` em smoke (`CI_SMOKE`) com `xvfb`, sem subir a API (integração HTTP fica no job `backend-integration` com `dotnet test`).
+- **Local com API:** na pasta `flutter-apps`, suba o backend (`./flutter-backend-kiri.sh up taskle` ou `dotnet run` em `TaskleBackend`) e execute em `taskle-app`:
+
+```bash
+flutter test integration_test -d linux
+```
+
 ## Examples of commits
 
 ```
